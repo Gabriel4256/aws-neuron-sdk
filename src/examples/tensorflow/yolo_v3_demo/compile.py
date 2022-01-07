@@ -47,6 +47,8 @@ result = tfn.saved_model.compile(
     './yolo_v3_coco_saved_model', './yolo_v3_coco_saved_model_neuron',
     # to enforce trivial compilable subgraphs to run on CPU
     no_fuse_ops=no_fuse_ops,
+    compiler_args=['--verbose', '2', '--pipeline', 'compile',  'SaveTemps'],
+    compiler_workdir='./compiler-workdir',
     minimum_segment_size=100,
     batch_size=2,
     dynamic_batch_size=True,

@@ -113,31 +113,31 @@ def evaluate(yolo_predictor, images, eval_pre_path, anno_file, eval_batch_size, 
     # warm up
     yolo_predictor({'image': np.array(batch_img_bytes_list[0], dtype=object)})
 
-    with futures.ThreadPoolExecutor(4) as exe:
-        fut_im_list = []
-        fut_list = []
-        start_time = time.time()
-        for batch_im_id, batch_im_name, batch_img_bytes in zip(batch_im_id_list, batch_im_name_list, batch_img_bytes_list):
-            if len(batch_img_bytes) != eval_batch_size:
-                continue
-            fut = exe.submit(yolo_predictor, {'image': np.array(batch_img_bytes, dtype=object)})
-            fut_im_list.append((batch_im_id, batch_im_name))
-            fut_list.append(fut)
-        bbox_list = []
-        count = 0
-        for (batch_im_id, batch_im_name), fut in zip(fut_im_list, fut_list):
-            results = fut.result()
-            bbox_list.extend(analyze_bbox(results, batch_im_id, _clsid2catid))
-            for _ in batch_im_id:
-                count += 1
-                if count % 100 == 0:
-                    print('Test iter {}'.format(count))
-        print('==================== Performance Measurement ====================')
-        print('Finished inference on {} images in {} seconds'.format(len(images), time.time() - start_time))
-        print('=================================================================')
-    # start evaluation
-    box_ap_stats = bbox_eval(anno_file, bbox_list)
-    return box_ap_stats
+    # with futures.ThreadPoolExecutor(4) as exe:
+    #     fut_im_list = []
+    #     fut_list = []
+    #     start_time = time.time()
+    #     for batch_im_id, batch_im_name, batch_img_bytes in zip(batch_im_id_list, batch_im_name_list, batch_img_bytes_list):
+    #         if len(batch_img_bytes) != eval_batch_size:
+    #             continue
+    #         fut = exe.submit(yolo_predictor, {'image': np.array(batch_img_bytes, dtype=object)})
+    #         fut_im_list.append((batch_im_id, batch_im_name))
+    #         fut_list.append(fut)
+    #     bbox_list = []
+    #     count = 0
+    #     for (batch_im_id, batch_im_name), fut in zip(fut_im_list, fut_list):
+    #         results = fut.result()
+    #         bbox_list.extend(analyze_bbox(results, batch_im_id, _clsid2catid))
+    #         for _ in batch_im_id:
+    #             count += 1
+    #             if count % 100 == 0:
+    #                 print('Test iter {}'.format(count))
+    #     print('==================== Performance Measurement ====================')
+    #     print('Finished inference on {} images in {} seconds'.format(len(images), time.time() - start_time))
+    #     print('=================================================================')
+    # # start evaluation
+    # box_ap_stats = bbox_eval(anno_file, bbox_list)
+    # return box_ap_stats
 
 yolo_pred = tf.contrib.predictor.from_saved_model('./yolo_v3_coco_saved_model_neuron')
 
