@@ -21,6 +21,11 @@ predictor_inferentia = tf.contrib.predictor.from_saved_model(COMPILED_MODEL_DIR)
 model_feed_dict={'input': img_arr3}
 infa_rslts = predictor_inferentia(model_feed_dict);
 
+
+import tensorflow_neuron.python.saved_model as saved_model
+saved_model.profile('./ws_resnet50/resnet50', model_feed_dict=model_feed_dict, timeline_json="./timeline_json")
+
+
 # Display results
 print(resnet50.decode_predictions(infa_rslts["output"], top=5)[0])
 

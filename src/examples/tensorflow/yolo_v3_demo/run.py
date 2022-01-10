@@ -107,11 +107,19 @@ def analyze_bbox(results, batch_im_id, _clsid2catid):
 
 from concurrent import futures
 
+import tensorflow_neuron.python.saved_model as saved_model
+
 def evaluate(yolo_predictor, images, eval_pre_path, anno_file, eval_batch_size, _clsid2catid):
     batch_im_id_list, batch_im_name_list, batch_img_bytes_list = get_image_as_bytes(images, eval_pre_path)
 
     # warm up
     yolo_predictor({'image': np.array(batch_img_bytes_list[0], dtype=object)})
+
+    saved_model.profile(
+        './yolo_v3_coco_saved_model', 
+        model_feed_dict={'image': np.array(batch_img_bytes_list[0], dtype=object)},
+        timeline_json="./timeline_json"
+    )
 
     # with futures.ThreadPoolExecutor(4) as exe:
     #     fut_im_list = []
